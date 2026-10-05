@@ -1,7 +1,16 @@
 {
   "name": "zapier-posteverywhere",
   "version": "1.0.0",
-  "description": "PostEverywhere integration for the Zapier Platform.",
+  "description": "PostEverywhere integration for Zapier: schedule and publish social media posts to Instagram, TikTok, YouTube, LinkedIn, Facebook, X, Threads, Pinterest, Bluesky, Telegram, Discord and WordPress.",
+  "homepage": "https://posteverywhere.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/posteverywhere/zapier-posteverywhere.git"
+  },
+  "author": {
+    "name": "PostEverywhere",
+    "email": "support@posteverywhere.ai"
+  },
   "main": "index.js",
   "private": true,
   "license": "MIT",

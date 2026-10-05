@@ -140,6 +140,38 @@ describe('Create Post', () => {
     expect(result).toMatchObject({ id: POST_ID, post_status: 'draft' });
   });
 
+  it('adds a post to the queue', async () => {
+    let sent;
+    api()
+      .post(`${PREFIX}/posts`, (body) => {
+        sent = body;
+        return true;
+      })
+      .reply(201, ok({ post_id: POST_ID, status: 'scheduled', created_at: '2026-07-08T09:00:00.000Z' }));
+    await appTester(perform, {
+      authData,
+      inputData: { content: 'Queued', account_ids: ['2280'], use_queue: 'yes' },
+      meta: {},
+    });
+    expect(sent.use_queue).toBe(true);
+    expect(sent.scheduled_for).toBeUndefined();
+  });
+
+  it('rejects Add to Queue together with a scheduled time', async () => {
+    await expect(
+      appTester(perform, {
+        authData,
+        inputData: {
+          content: 'x',
+          account_ids: ['2280'],
+          use_queue: true,
+          scheduled_for: '2030-01-01T00:00:00Z',
+        },
+        meta: {},
+      })
+    ).rejects.toThrow(/Add to Queue cannot be used/);
+  });
+
   it('rejects a post with no accounts before calling the API', async () => {
     await expect(
       appTester(perform, { authData, inputData: { content: 'x' }, meta: {} })

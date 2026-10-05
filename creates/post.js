@@ -57,6 +57,17 @@ const perform = async (z, bundle) => {
   const timezone = input.timezone || (bundle.meta && bundle.meta.timezone);
   if (timezone) body.timezone = String(timezone);
   if (draft) body.draft = true;
+  const queue = input.use_queue === true || input.use_queue === 'true' || input.use_queue === 'yes';
+  if (queue) {
+    if (draft || input.scheduled_for) {
+      throw new z.errors.Error(
+        'Add to Queue cannot be used with Scheduled Time or Save as Draft. Clear one of them.',
+        'validation_error',
+        400
+      );
+    }
+    body.use_queue = true;
+  }
 
   const response = await z.request({ url: url('/posts'), method: 'POST', body });
   const post = unwrap(response) || {};
@@ -86,7 +97,7 @@ module.exports = {
         type: 'text',
         required: false,
         helpText:
-          'The post text, up to 10,000 characters. Each network still applies its own limit (for example 280 for X without Premium). Can be blank when you attach media.',
+          'The post text, up to 25,000 characters. Each network still applies its own limit (for example 280 for X without Premium). Can be blank when you attach media.',
       },
       {
         key: 'media_urls',
@@ -116,6 +127,15 @@ module.exports = {
         required: false,
         helpText:
           'IANA timezone name to show the post in, such as `America/New_York`. It does not change when the post publishes. Defaults to your Zap timezone.',
+      },
+      {
+        key: 'use_queue',
+        label: 'Add to Queue',
+        type: 'boolean',
+        required: false,
+        default: 'no',
+        helpText:
+          'Yes publishes the post in the next free slot of your PostEverywhere posting queue. Leave Scheduled Time blank when you use this.',
       },
       {
         key: 'draft',
